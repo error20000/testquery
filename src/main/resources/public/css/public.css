@@ -1,0 +1,49 @@
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+body, div, h1, h2, h3, h4, h5, h6, p, blockquote, pre, code, del, dfn,
+	em, img, strong, dd, dl, dt, li, ol, ul, fieldset, form, label, button,
+	input, table, caption, tbody, tfoot, thead, tr, th, td, header, footer,
+	menu, a, span, i, b, section {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+ol, ul, menu {
+	list-style: none
+}
+
+a {
+	display: inline-block;
+	text-decoration: none;
+}
+
+a:focus {
+	outline: none
+}
+
+input, button, img, select, textarea {
+	border: 0;
+	outline: none;
+	font-size: 100%;
+}
+
+textarea {
+	overflow: auto;
+	vertical-align: top
+}
+
+em, i {
+	font-style: normal;
+}
+
+img {
+	vertical-align: middle;
+}
+
+body {
+	font-family: "Î¢ÈíÑÅºÚ";
+}

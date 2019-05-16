@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>testquery</title>
+
+<link href="js/element-2.8.2/theme-chalk/index.css" rel="stylesheet">
+<link rel="stylesheet" href="css/public.css" />  
+
+<script src="js/jquery-3.4.1.js" type="text/javascript"></script>
+<script src="js/vue-2.6.10/vue.js" type="text/javascript"></script>
+<script src="js/element-2.8.2/index.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+<div id="app">
+	<el-row>
+			<el-col :span="12">
+				<div id="fullMap"></div>
+				<div id="viewDiv"></div>
+				<div id="playDiv">
+					<play-controller ></play-controller>
+				</div>
+			</el-col>
+			<el-col :span="12">
+				<div id="videoDiv">
+					<video id="video" controls="controls" style="width:100%;height:100%;">
+					  <source src="video/test.mp4" type="video/mp4">
+						Your browser does not support the video tag.
+					</video>
+				</div>
+			</el-col>
+	</el-row>
+	<el-row>
+			<el-col :span="12">
+				<el-row>
+					<el-col :span="24">
+						
+						<div id="trackDiv">
+						 		<!-- <el-checkbox v-model="isTrackShow" @change="handlerTrack">显示轨迹</el-checkbox> -->
+						 		<el-checkbox v-model="isTrackShowPoint" @change="handlerTrackChange('point')">点</el-checkbox>
+						 		<el-checkbox v-model="isTrackShowLine" @change="handlerTrackChange('line')">线</el-checkbox>
+						 		<el-checkbox v-model="isTrackShowDashed" @change="handlerTrackChange('dashed')">虚线</el-checkbox>
+						 		<el-checkbox v-model="isTrackShowShape" @change="handlerTrackChange('shape')">形状</el-checkbox>
+						 		<el-checkbox v-model="isTrackShowInfo" @change="handlerTrackChange('info')">事件</el-checkbox>
+						</div>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="8">
+						<div id="shipeChange">
+							<el-select v-model="select" placeholder="请选择">
+							    <el-option 
+							    	v-for="item in shipsSelect" :key="item.value" :label="item.label" :value="item.value">
+							    </el-option>
+							  </el-select>
+						</div>
+					</el-col>
+					<el-col :span="16">
+						<div id="shipInfo">
+							<!-- <el-form ref="shipsForm" :model="shipsForm">
+							  <el-form-item label="活动名称">
+							    <el-input v-model="shipsForm.name" readonly="readonly"></el-input>
+							  </el-form-item>
+							  <el-form-item label="活动名称">
+							    <el-input v-model="shipsForm.name" readonly="readonly"></el-input>
+							  </el-form-item>
+							  <el-form-item label="活动名称">
+							    <el-input v-model="shipsForm.name" readonly="readonly"></el-input>
+							  </el-form-item>
+							</el-form> -->
+						</div>
+					</el-col>
+				</el-row>
+			</el-col>
+			<el-col :span="12">
+				<div id="msgDiv">
+				</div>
+			</el-col>
+	</el-row>
+</div>
+</body>
+
+<script>
+new Vue({
+    el: '#app',
+    data: function() {
+      return {};
+    },
+    methods: {
+    	handlerTrack: function(evt) {
+    		Config.isTrackShowPoint = true;
+  	        ArGis.drawTrack();
+  	    },
+    	handlerTrackChange: function(type) {
+    		if(type == "point"){
+    			//移除原来的点
+    			ArGis.clearTrackPoint();
+    		}else if(type == "line"){
+    			//移除原来的线
+    			ArGis.clearTrackLine();
+    		}else if(type == "dashed"){
+    			//移除原来的虚线
+    			ArGis.clearTrackDash();
+    		}else if(type == "shape"){
+    			//移除原来的虚线
+    			ArGis.clearTrackShape();
+    		}else if(type == "info"){
+    			//移除原来的虚线
+    			ArGis.clearTrackInfo();
+    		}
+    		ArGis.drawTrack();
+  	    }
+    },
+    mounted: function(){
+		
+    },
+    /* components: {
+        'play-controller': PlayController
+      } */
+  })
+  </script>
+</html>
