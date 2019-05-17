@@ -67,15 +67,20 @@
 						   列表内容 
 						  </div>
 						</el-card> -->
-						<el-button class="setting" type="text"><i class="el-icon-s-tools"></i></el-button>
+						<el-button class="setting" type="text" @click="mapFormVisible = true"><i class="el-icon-s-tools"></i></el-button>
+						<el-popover class="legend" placement="bottom-end" trigger="hover">
+							<el-button slot="reference"  type="text">Legend</el-button>
+							<el-table slot stripe :data="legendColorData">
+								<el-table-column prop="color" label="Color"></el-table-column>
+								<el-table-column prop="from" label="From"></el-table-column>
+								<el-table-column prop="to" label="To"></el-table-column>
+							</el-table>
+						</el-popover>
 						<el-tabs type="border-card">
 						  <el-tab-pane>
 						    <span slot="label"><i class="el-icon-date"></i> 我的行程</span>
-						   	<div style="height:calc(100vh - 185px);"></div>
+						   	<div id="mapView" style="height:calc(100vh - 185px);"></div>
 						  </el-tab-pane>
-						  <el-tab-pane label="消息中心">消息中心</el-tab-pane>
-						  <el-tab-pane label="角色管理">角色管理</el-tab-pane>
-						  <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane>
 						</el-tabs>
 					</div>
 				</el-aside> 
@@ -108,120 +113,42 @@
 				</el-main> 
 			</el-container> 
 		</el-container>
+
+		<!-- map setting -->
+		<el-dialog title="Map Options" :visible.sync="mapFormVisible" :close-on-click-modal="false">
+			<el-form :model="mapForm" label-position="right" label-width="200px">
+				<el-form-item label="Number of Classes:">
+					<el-select v-model="mapForm.number" placeholder="">
+						<el-option label="2" :value="2"></el-option>
+						<el-option label="3" :value="3"></el-option>
+						<el-option label="4" :value="4"></el-option>
+						<el-option label="5" :value="5"></el-option>
+						<el-option label="6" :value="6"></el-option>
+						<el-option label="7" :value="7"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="Classification Method:">
+					<el-select v-model="mapForm.method" placeholder="">
+						<el-option label="Equal Interval" :value="1"></el-option>
+						<el-option label="Quantiles" :value="2"></el-option>
+						<el-option label="Natural Breaks" :value="3"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="Start Color:">
+					<el-color-picker v-model="mapForm.startColor" show-alpha :predefine="predefineColors"></el-color-picker>
+				</el-form-item>
+				<el-form-item label="End Color:">
+					<el-color-picker v-model="mapForm.endColor" show-alpha :predefine="predefineColors"></el-color-picker>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="mapFormVisible = false">Cancel</el-button>
+				<el-button type="primary" @click="handleMapOptionApply">Apply</el-button>
+			</div>
+		</el-dialog>
+
 	</div>
 </body>
 
-<script type="text/javascript">
-	new Vue({
-		el : '#app',
-		data : function() {
-			return {
-				filter: {
-					source: [],
-					table: [],
-					variable: []
-				},
-				asideWidth: "50%",
-				tableData: [{
-		            date: 'Oak Grove CDP (Washington County)',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          },{
-		            date: '2016-05-02',
-		            name: '王小虎',
-		            address: '上海市普陀区金沙江路 1518 弄',
-		            date1: '2016-05-02',
-		            name1: '王小虎',
-		            address1: '上海市普陀区金沙江路 1518 弄',
-		            date2: '2016-05-02',
-		            name2: '王小虎',
-		            address2: '上海市普陀区金沙江路 1518 弄',
-		          }]
-
-			};
-		},
-		methods : {
-
-		},
-		mounted : function() {
-
-		}
-	});
-</script>
+<script type="text/javascript" src="js/index.js"></script>
 </html>
