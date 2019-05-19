@@ -95,7 +95,7 @@
 								<keep-alive>
 								<el-table stripe :data="tableData" height="calc(100vh - 185px)">
 						      <el-table-column sortable width="150" prop="name" label="name" fixed></el-table-column>
-						      <el-table-column sortable width="150" prop="geo_id2" label="geo_id2" fixed></el-table-column>
+						      <el-table-column sortable width="150" prop="geo_id2" label="geo_id2"></el-table-column>
 									<el-table-column sortable width="150" v-for="item in tableColumnMap" :prop="item" :label="item"></el-table-column>
 						    </el-table>
 								</keep-alive>
