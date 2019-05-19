@@ -29,20 +29,18 @@
 						<div class="filter">
 							<el-form :inline="true" :model="filter" class="demo-form-inline">
 							  <el-form-item label="Data Source">
-							    <el-select v-model="filter.source" placeholder="">
-							      <el-option label="pop_5yrs_and_over_for_language_spoken_at_home" value="shanghai"></el-option>
-							      <el-option label="pop_5yrs_and_over_for_language_spoken_at_home" value="beijing"></el-option>
+							    <el-select v-model="filter.source" placeholder="" @change="hanhleSourceChange">
+							      <el-option v-for="item,index in sourceOptions" :key="index" :label="item.label" :value="item.value"></el-option>
 							    </el-select>
 							  </el-form-item>
 							  <el-form-item label="Data Table">
-							    <el-select v-model="filter.table" placeholder="">
-							      <el-option label="pop_5yrs_and_over_for_language_spoken_at_home" value="shanghai"></el-option>
-							      <el-option label="pop_5yrs_and_over_for_language_spoken_at_home" value="beijing"></el-option>
+							    <el-select v-model="filter.table" placeholder="" @change="hanhleTableChange">
+							      <el-option v-for="item,index in tableOptions" :key="index" :label="item.label" :value="item.value"></el-option>
 							    </el-select>
 							  </el-form-item>
 							  <el-form-item label="Variable">
-							    <el-select v-model="filter.variable" placeholder="">
-							      <el-option label="pop_5yrs_and_over_for_language_spoken_at_home" value="shanghai"></el-option>
+							    <el-select v-model="filter.variable" placeholder="" @change="hanhleVariableChange">
+							      <el-option v-for="item,index in variableOptions" :key="index" :label="item.label" :value="item.value"></el-option>
 							    </el-select>
 							  </el-form-item>
 							</el-form>
@@ -71,7 +69,11 @@
 						<el-popover class="legend" placement="bottom-end" trigger="hover">
 							<el-button slot="reference"  type="text">Legend</el-button>
 							<el-table slot stripe :data="legendColorData">
-								<el-table-column prop="color" label="Color"></el-table-column>
+								<el-table-column label="Color">
+										<template slot-scope="scope">
+											<el-tag :color="scope.row.color">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-tag>
+										</template>
+								</el-table-column>
 								<el-table-column prop="from" label="From"></el-table-column>
 								<el-table-column prop="to" label="To"></el-table-column>
 							</el-table>
@@ -86,28 +88,21 @@
 				</el-aside> 
 				<el-main class="main">
 					<div class="tableContainer">
-						<el-button class="setting" type="text"><i class="el-icon-s-tools"></i></el-button>
+						<el-button class="setting" type="text"><i class="el-icon-download"></i></el-button>
 						<el-tabs type="border-card">
 						  <el-tab-pane>
 						    <span slot="label"><i class="el-icon-date"></i> 我的行程</span>
-						    <el-table stripe :data="tableData" height="calc(100vh - 185px)">
-						      <el-table-column sortable width="150" prop="date" label="日期" fixed></el-table-column>
-						      <el-table-column sortable width="150" prop="name" label="姓名" fixed></el-table-column>
-						      <el-table-column sortable width="150" prop="address" label="地址"></el-table-column>
-						      <el-table-column sortable width="150" prop="date1" label="日期1"></el-table-column>
-						      <el-table-column sortable width="150" prop="name1" label="姓名1"></el-table-column>
-						      <el-table-column sortable width="150" prop="address1" label="地址1"></el-table-column>
-						      <el-table-column sortable width="150" prop="date2" label="日期2"></el-table-column>
-						      <el-table-column sortable width="150" prop="name2" label="姓名2"></el-table-column>
-						      <el-table-column sortable width="150" prop="address2" label="地址2"></el-table-column>
+								<keep-alive>
+								<el-table stripe :data="tableData" height="calc(100vh - 185px)">
+						      <el-table-column sortable width="150" prop="name" label="name" fixed></el-table-column>
+						      <el-table-column sortable width="150" prop="geo_id2" label="geo_id2" fixed></el-table-column>
+									<el-table-column sortable width="150" v-for="item in tableColumnMap" :prop="item" :label="item"></el-table-column>
 						    </el-table>
-						    
+								</keep-alive>
 						  </el-tab-pane>
 						  <el-tab-pane label="消息中心">
-						 	 消息中心
+									<div id="chartView" style="height:calc(100vh - 185px);"></div>
 						  </el-tab-pane>
-						  <el-tab-pane label="角色管理">角色管理</el-tab-pane>
-						  <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane>
 						</el-tabs>
 					</div>
 				</el-main> 
@@ -135,10 +130,10 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="Start Color:">
-					<el-color-picker v-model="mapForm.startColor" show-alpha :predefine="predefineColors"></el-color-picker>
+					<el-color-picker v-model="mapForm.startColor" :predefine="predefineColors"></el-color-picker>
 				</el-form-item>
 				<el-form-item label="End Color:">
-					<el-color-picker v-model="mapForm.endColor" show-alpha :predefine="predefineColors"></el-color-picker>
+					<el-color-picker v-model="mapForm.endColor" :predefine="predefineColors"></el-color-picker>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -150,5 +145,10 @@
 	</div>
 </body>
 
+<!-- <script src="js/echarts-4.2.1/echarts.all.js" type="text/javascript"></script> -->
+<script src="https://ditu.google.cn/maps/api/js?key=AIzaSyDJW4jsPlNKgv6jFm3B5Edp5ywgdqLWdmc&language=en"></script>
+<script type="text/javascript" src="js/mapData.js"></script>
+<script type="text/javascript" src="js/tableData.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
 </html>
