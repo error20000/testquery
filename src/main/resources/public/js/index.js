@@ -35,6 +35,7 @@ new Vue({
 				'#00ced1',
 				'#1e90ff',
 				'#c71585',
+				'#ff0000',
 			],
 			minValue: 0,
 			maxValue: 0,
@@ -42,6 +43,18 @@ new Vue({
 
 			tableData: [],
 			tableColumnMap: {},
+			
+			chart: "",
+			chartType: 1,
+			chartVariable: "",
+			chartTypeOptions: [
+				{"label": "Bar Chart", "value": 1 },
+				{"label": "Line Chart", "value": 2 },
+				{"label": "Pie Chart", "value": 3 },
+				{"label": "X Y Plot", "value": 4 }
+			],
+			xVar: "",
+			yVar: "",
 
 		};
 	},
@@ -95,8 +108,14 @@ new Vue({
 				}
 			}
 			console.log(minValue+", "+maxValue);
+			//chart variable
+			this.chartVariable = this.filter.variable;
+			this.xVar = this.filter.variable;
+			this.yVar = this.yVar ? this.yVar : this.variableOptions[this.variableOptions.length == 1 ? 0 : 1].value;
 			//calc color
 			this.calcColor();
+			//change chart
+			this.hadleChartTypeChange();
 		},
 		hanhleSourceOption: function(){
 			this.sourceOptions.push({label: "2017 ACS-Social Characteristics", value: "2017 ACS-Social Characteristics"});
@@ -120,17 +139,23 @@ new Vue({
 			}
 			//select first
 			this.filter.variable = this.variableOptions[0].value;
+			//chart variable
+			this.chartVariable = this.filter.variable;
+			this.xVar = this.filter.variable;
+			this.yVar = this.yVar ? this.yVar : this.variableOptions[this.variableOptions.length == 1 ? 0 : 1].value;
+			//execute
 			this.hanhleVariableChange(this.filter.variable);
 		},
 		
 		init: function(){
-			
+			this.initChart();
 			this.hanhleSourceOption();
 			this.hanhleTableOption();
 			//this.hanhleVariableOption();
 
-			this.showMap();
-			this.showTable();
+			//this.showMap();
+			//this.showTable();
+			//this.initChart();
 		},
 
 		showMap: function (lat, lng) {
@@ -153,26 +178,40 @@ new Vue({
 				//geoId
 				let geoId = e["properties"]["GEOID"];
 				//path
-				let originPath = e["geometry"]["coordinates"][0][0];
-				let path = [];
-				for (let j = 0; j < originPath.length; j++) {
-					const e2 = originPath[j];
-					let temp = Utils.mercatorToLonLat(e2[0], e2[1]);
-					let node = {
-						lat: temp.lat,
-						lng: temp.lon
-					};
-					path.push(node);
+				let originPath = e["geometry"]["coordinates"];
+				if(geoId == "4752006"){
+					console.log(e["geometry"]["coordinates"]);
+				}
+				let paths = [];
+				for (var k = 0; k < originPath.length; k++) {
+					const e2 = originPath[k];
+					for (var m = 0; m < e2.length; m++) {
+						const e3 = e2[m];
+						let path3 = [];
+						for (let n = 0; n < e3.length; n++) {
+							const e4 = e3[n];
+							let temp = Utils.mercatorToLonLat(e4[0], e4[1]);
+							let node = {
+									lat: temp.lat,
+									lng: temp.lon
+							};
+							path3.push(node);
+						}
+						paths.push(path3);
+					}
+				}
+				if(geoId == "4752006"){
+					console.log(paths);
 				}
 				//color
 				let color = this.getColor(geoId);
 				//draw Polygon
-				this.drawPolygon(geoId, this.map, path, color, color);
+				this.drawPolygon(geoId, this.map, paths, color, color);
 			}
 		},
 		drawPolygon: function(id, map, path, fillColor, strokeColor){
 			let polygon = new google.maps.Polygon({
-				path: path,
+				paths: path,
 				map: map,
 				fillColor: fillColor,
 				//fillOpacity: 1,
@@ -218,7 +257,7 @@ new Vue({
 		},
 		reDrawPolygonColor: function(polygon, fillColor, strokeColor){
 			polygon.setOptions({
-				path: polygon.getPath(),
+				paths: polygon.getPaths(),
 				map: polygon.getMap(),
 				fillColor: fillColor || polygon.fillColor,
 				//fillOpacity: 1,
@@ -309,7 +348,69 @@ new Vue({
 		//table
 		showTable: function(){
 
-		}
+		},
+
+		//chart
+		initChart: function(){
+			this.chart = echarts.init(document.getElementById('chartView'));
+			this.chartType = this.chartTypeOptions[0].value;
+		},
+		hadleChartTypeChange: function(val){
+			
+			val = val || this.chartType;
+			switch (val) {
+			case 1:
+				this.barChart();
+				break;
+			case 2:
+				
+				break;
+			case 3:
+				
+				break;
+			case 4:
+				
+				break;
+
+			default:
+				break;
+			}
+		},
+		hadleChartVariableChange: function(val){
+			console.log("hadleChartVariableChange");
+			this.hadleChartTypeChange();
+		},
+		barChart: function(){
+
+			//data
+			let xAxisData = [];
+			let yAxisData = [];
+			
+			for (var i = 0; i < this.tableData.length; i++) {
+				xAxisData.push(this.tableData[i]["name"]);
+				yAxisData.push(this.tableData[i][this.chartVariable]);
+			}
+			//chart
+	        var option = {
+	            title: {
+	                text: this.chartVariable+"\n"
+	            },
+	            tooltip: {},
+	            legend: {
+	                data:[this.chartVariable]
+	            },
+	            xAxis: {
+	                data: xAxisData
+	            },
+	            yAxis: {},
+	            series: [{
+	                name: this.chartVariable,
+	                type: 'bar',
+	                data: yAxisData
+	            }]
+	        };
+	        this.chart.setOption(option);
+		},
 	},
 	mounted : function() {
 		this.init();
