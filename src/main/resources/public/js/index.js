@@ -53,8 +53,19 @@ new Vue({
 				{"label": "Pie Chart", "value": 3 },
 				{"label": "X Y Plot", "value": 4 }
 			],
+			scatterVisible: false,
 			xVar: "",
 			yVar: "",
+			pieTopVisible: false,
+			pielLegendShow: false,
+			pieTop: 10,
+			pieTopOptions: [
+				{"label": "ALL", "value": 0 },
+				{"label": "10", "value": 10 },
+				{"label": "20", "value": 20 },
+				{"label": "50", "value": 50 },
+				{"label": "100", "value": 100 }
+			],
 
 		};
 	},
@@ -151,9 +162,8 @@ new Vue({
 			this.initChart();
 			this.hanhleSourceOption();
 			this.hanhleTableOption();
-			//this.hanhleVariableOption();
 
-			//this.showMap();
+			this.showMap();
 			//this.showTable();
 			//this.initChart();
 		},
@@ -356,20 +366,23 @@ new Vue({
 			this.chartType = this.chartTypeOptions[0].value;
 		},
 		hadleChartTypeChange: function(val){
-			
 			val = val || this.chartType;
+			this.scatterVisible = false;
+			this.pieTopVisible = false;
 			switch (val) {
 			case 1:
 				this.barChart();
 				break;
 			case 2:
-				
+				this.lineChart();
 				break;
 			case 3:
-				
+				this.pieTopVisible = true;
+				this.pieChart();
 				break;
 			case 4:
-				
+				this.scatterVisible = true;
+				this.scatterChart();
 				break;
 
 			default:
@@ -377,11 +390,9 @@ new Vue({
 			}
 		},
 		hadleChartVariableChange: function(val){
-			console.log("hadleChartVariableChange");
 			this.hadleChartTypeChange();
 		},
 		barChart: function(){
-
 			//data
 			let xAxisData = [];
 			let yAxisData = [];
@@ -395,9 +406,27 @@ new Vue({
 	            title: {
 	                text: this.chartVariable+"\n"
 	            },
-	            tooltip: {},
+				tooltip: {
+					trigger: 'axis'
+				},
+				toolbox: {
+					feature: {
+						dataZoom: {
+							yAxisIndex: 'none'
+						},
+						restore: {},
+						saveAsImage: {}
+					}
+				},
+				dataZoom: [
+					{
+						show: true,
+						start: 0,
+						end: 100
+					}
+				],
 	            legend: {
-	                data:[this.chartVariable]
+	                data:["", this.chartVariable]
 	            },
 	            xAxis: {
 	                data: xAxisData
@@ -409,6 +438,153 @@ new Vue({
 	                data: yAxisData
 	            }]
 	        };
+			this.chart.clear();
+	        this.chart.setOption(option);
+		},
+		lineChart: function(){
+			//data
+			let xAxisData = [];
+			let yAxisData = [];
+			
+			for (var i = 0; i < this.tableData.length; i++) {
+				xAxisData.push(this.tableData[i]["name"]);
+				yAxisData.push(this.tableData[i][this.chartVariable]);
+			}
+			//chart
+	        var option = {
+	            title: {
+	                text: this.chartVariable+"\n"
+	            },
+				tooltip: {
+					trigger: 'axis'
+				},
+				toolbox: {
+					feature: {
+						dataZoom: {
+							yAxisIndex: 'none'
+						},
+						restore: {},
+						saveAsImage: {}
+					}
+				},
+				dataZoom: [
+					{
+						show: true,
+						start: 0,
+						end: 100
+					}
+				],
+	            legend: {
+	                data:["", this.chartVariable]
+	            },
+	            xAxis: {
+	                data: xAxisData
+	            },
+	            yAxis: {},
+	            series: [{
+	                name: this.chartVariable,
+	                type: 'line',
+	                data: yAxisData
+	            }]
+	        };
+			this.chart.clear();
+	        this.chart.setOption(option);
+		},
+		pieChart: function(){
+			//data
+			let xAxisData = [];
+			let yAxisData = [];
+			let selectedData = {};
+			
+			for (var i = 0; i < this.tableData.length; i++) {
+				xAxisData.push(this.tableData[i]["name"]);
+				let node = {
+					name: this.tableData[i]["name"],
+					value: this.tableData[i][this.chartVariable]
+				}
+				yAxisData.push(node);
+				selectedData[this.tableData[i]["name"]] = this.pieTop === 0 ? true : i < this.pieTop;
+			}
+			
+			//chart
+	        var option = {
+	            title: {
+	                text: this.chartVariable+"\n"
+	            },
+				toolbox: {
+					feature: {
+						dataZoom: {
+							show: false
+						},
+						restore: {},
+						saveAsImage: {}
+					}
+				},
+				tooltip : {
+					trigger: 'item',
+					formatter: "{a} <br/>{b} : <br/>{c} ({d}%)"
+				},
+				legend: {
+					show: this.pielLegendShow,
+					type: 'scroll',
+					orient: 'vertical',
+					right: 0,
+					//width: 100,
+					data: xAxisData,
+					selected: selectedData
+				},
+	            series : [
+					{
+						name: this.chartVariable,
+						type: 'pie',
+						radius : '55%',
+						center: ['40%', '50%'],
+						data: yAxisData,
+						itemStyle: {
+							emphasis: {
+								shadowBlur: 10,
+								shadowOffsetX: 0,
+								shadowColor: 'rgba(0, 0, 0, 0.5)'
+							}
+						}
+					}
+				]
+			};
+			this.chart.clear();
+	        this.chart.setOption(option);
+		},
+		scatterChart: function(){
+			//data
+			let axisData = [];
+			
+			for (var i = 0; i < this.tableData.length; i++) {
+				let node = [this.tableData[i][this.xVar], this.tableData[i][this.yVar]];
+				axisData.push(node);
+			}
+			
+			//chart
+	        var option = {
+	            title: {
+	                text: this.xVar + " by " + this.yVar +"\n"
+	            },
+				toolbox: {
+					feature: {
+						dataZoom: {
+							show: false
+						},
+						restore: {},
+						saveAsImage: {}
+					}
+				},
+				xAxis: {},
+				yAxis: {},
+				series: [{
+					symbolSize: 20,
+					data: axisData,
+					type: 'scatter'
+				}]
+			};
+			this.chart.clear();
 	        this.chart.setOption(option);
 		},
 	},

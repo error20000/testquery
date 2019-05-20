@@ -73,7 +73,7 @@
 						<el-button class="setting" type="text" @click="mapFormVisible = true"><i class="el-icon-s-tools"></i></el-button>
 						<el-popover class="legend" placement="bottom-end" trigger="hover">
 							<el-button slot="reference"  type="text">Legend</el-button>
-							<el-table slot stripe :data="legendColorData">
+							<el-table slot stripe :data="legendColorData" size="mini">
 								<el-table-column label="Color">
 										<template slot-scope="scope">
 											<el-tag :color="scope.row.color">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-tag>
@@ -97,7 +97,7 @@
 						<el-tabs type="border-card">
 						  <el-tab-pane>
 					    	<span slot="label"><i class="fas fa-table"></i> Data Table</span>
-							<el-table stripe :data="tableData" height="calc(100vh - 185px)">
+							<el-table stripe :data="tableData" height="calc(100vh - 185px)" size="mini">
 						      <el-table-column sortable width="150" prop="name" label="name" fixed></el-table-column>
 						      <el-table-column sortable width="150" prop="geo_id2" label="geo_id2"></el-table-column>
 									<el-table-column sortable width="150" v-for="item in tableColumnMap" :prop="item" :label="item"></el-table-column>
@@ -108,24 +108,35 @@
 					    	<div class="chartTools">
 					    		<div class="tools1">
 						    		<label>Chart Type:</label>
-						    		<el-select v-model="chartType" placeholder="" size="mini" @change="hadleChartTypeChange">
+						    		<el-select v-model="chartType" placeholder="" size="mini" @change="hadleChartTypeChange" style="width:100px;">
 									    <el-option v-for="(item, index) in chartTypeOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-									</el-select>
+										</el-select>
 						    		<label>Chart Variable:</label>
-						    		<el-select v-model="chartVariable" placeholder="" size="mini" @change="hadleChartVariableChange">
+						    		<el-select v-model="chartVariable" placeholder="" size="mini" @change="hadleChartVariableChange" style="width:150px;">
 						    			<el-option v-for="item,index in variableOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-									</el-select>
-									<el-button class="compare" size="mini">Compare</el-button>
+										</el-select>
+										<el-button class="compare" size="mini">Compare</el-button>
 					    		</div>
-					    		<div class="tools2">
+					    		<div class="tools2" v-show="scatterVisible">
 						    		<label>X Var:</label>
-						    		<el-select v-model="xVar" placeholder="" size="mini"> 
+						    		<el-select v-model="xVar" placeholder="" size="mini" @change="hadleChartVariableChange"> 
 						    			<el-option v-for="item,index in variableOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-									</el-select>
+										</el-select>
 						    		<label>Y Var:</label>
-						    		<el-select v-model="yVar" placeholder="" size="mini"> 
+						    		<el-select v-model="yVar" placeholder="" size="mini" @change="hadleChartVariableChange"> 
 						    			<el-option v-for="item,index in variableOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-									</el-select>
+										</el-select>
+					    		</div>
+					    		<div class="tools2" v-show="pieTopVisible">
+						    		<label>Top:</label>
+						    		<el-select v-model="pieTop" placeholder="" size="mini" @change="hadleChartVariableChange" style="width:100px;"> 
+						    			<el-option v-for="item,index in pieTopOptions" :key="index" :label="item.label" :value="item.value"></el-option>
+										</el-select>
+						    		<label>Legend Show:</label>
+						    		<el-select v-model="pielLegendShow" placeholder="" size="mini" @change="hadleChartVariableChange" style="width:100px;"> 
+											<el-option label="false" :value="false"></el-option>
+											<el-option label="true" :value="true"></el-option>
+										</el-select>
 					    		</div>
 					    		
 					    	</div>
