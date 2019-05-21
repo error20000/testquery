@@ -26,6 +26,7 @@ new Vue({
 				method: 1
 			},
 			geometrys: [],
+			geometrysMap: {},
 
 			predefineColors: [
 				'#ff4500',
@@ -43,6 +44,8 @@ new Vue({
 
 			tableData: [],
 			tableColumnMap: {},
+			tableRowClassName: '',
+			tableMap: {},
 			
 			chart: "",
 			chartType: 1,
@@ -100,7 +103,8 @@ new Vue({
 					}
 					this.tableColumnMap[key] = key;
 				}
-				
+				//table map
+				this.tableMap[tableData[i]["geo_id2"]] = tableData[i];
 			}
 			//init variable option
 			this.hanhleVariableOption();
@@ -189,9 +193,9 @@ new Vue({
 				let geoId = e["properties"]["GEOID"];
 				//path
 				let originPath = e["geometry"]["coordinates"];
-				if(geoId == "4752006"){
+				/*if(geoId == "4752006"){
 					console.log(e["geometry"]["coordinates"]);
-				}
+				}*/
 				let paths = [];
 				for (var k = 0; k < originPath.length; k++) {
 					const e2 = originPath[k];
@@ -210,9 +214,9 @@ new Vue({
 						paths.push(path3);
 					}
 				}
-				if(geoId == "4752006"){
+				/*if(geoId == "4752006"){
 					console.log(paths);
-				}
+				}*/
 				//color
 				let color = this.getColor(geoId);
 				//draw Polygon
@@ -230,15 +234,18 @@ new Vue({
 			});
 			let geometry = {
 				id: id,
-				polygon: polygon
+				polygon: polygon,
+				fillColor: fillColor,
+				strokeColor: strokeColor
 			}
+			this.geometrysMap[id] = geometry;
 			//event
 			let _this = this;
 			google.maps.event.addListener(polygon , 'mouseover', function(event) {
-				_this.handlePolygonMouseover(polygon, "#000000", "#000000");
+				_this.handlePolygonMouseover(geometry, "#000000", "#000000");
 			});
 			google.maps.event.addListener(polygon , 'mouseout', function(event) {
-				_this.handlePolygonMouseout(polygon, fillColor, strokeColor);
+				_this.handlePolygonMouseout(geometry, fillColor, strokeColor);
 			});
 			//store
 			this.geometrys.push(geometry);
@@ -253,15 +260,17 @@ new Vue({
 				let polygon = e.polygon;
 				//color
 				let color = this.getColor(e.id);
+				e.fillColor = color;
+				e.strokeColor = color;
 				//redraw color
 				this.reDrawPolygonColor(polygon, color, color);
 				//event
 				let _this = this;
 				google.maps.event.addListener(polygon , 'mouseover', function(event) {
-					_this.handlePolygonMouseover(polygon, "#000000", "#000000");
+					_this.handlePolygonMouseover(e, "#000000", "#000000");
 				});
 				google.maps.event.addListener(polygon , 'mouseout', function(event) {
-					_this.handlePolygonMouseout(polygon, color, color);
+					_this.handlePolygonMouseout(e, color, color);
 				});
 			}
 		},
@@ -275,11 +284,24 @@ new Vue({
 				//strokeOpacity: 1
 			});
 		},
-		handlePolygonMouseover: function(polygon, fillColor, strokeColor){
-			this.reDrawPolygonColor(polygon, fillColor, fillColor);
+		handlePolygonMouseover: function(geometry, fillColor, strokeColor){
+			//map hover
+			this.polygonChange(geometry, fillColor, strokeColor);
+			//table hover
+			//this.$refs.table.setCurrentRow(this.tableMap[id]);
 		},
-		handlePolygonMouseout: function(polygon, fillColor, strokeColor){
-			this.reDrawPolygonColor(polygon, fillColor, fillColor);
+		handlePolygonMouseout: function(geometry, fillColor, strokeColor){
+			//map out
+			this.polygonChange(geometry, fillColor, strokeColor);
+			//table out
+			//this.$refs.table.setCurrentRow();
+		},
+		polygonChange: function(geometry, fillColor, strokeColor){
+			let id = geometry.id;
+			let polygon = geometry.polygon;
+			fillColor = fillColor || geometry.fillColor;
+			strokeColor = strokeColor || geometry.strokeColor;
+			this.reDrawPolygonColor(polygon, fillColor, strokeColor);
 		},
 		getColor: function(geoId){
 			//value
@@ -359,6 +381,23 @@ new Vue({
 		showTable: function(){
 
 		},
+		handleCurrentChange: function(curRow, oldRow){
+			/*let geometry1 = this.geometrysMap[curRow["geo_id2"]];
+			this.polygonChange(geometry1, "#000000", "#000000");
+			
+			let geometry2 = this.geometrysMap[oldRow["geo_id2"]];
+			this.polygonChange(geometry2, "", "");*/
+		},
+		handleCellMouseEnter: function(row){
+			let geometry = this.geometrysMap[row["geo_id2"]];
+			//map hover
+			this.polygonChange(geometry, "#000000", "#000000");
+		},
+		handleCellMouseLeave: function(row){
+			let geometry = this.geometrysMap[row["geo_id2"]];
+			//map out
+			this.polygonChange(geometry, "", "");
+		},
 
 		//chart
 		initChart: function(){
@@ -404,7 +443,7 @@ new Vue({
 			//chart
 	        var option = {
 	            title: {
-	                text: this.chartVariable+"\n"
+	                text: this.chartVariable
 	            },
 				tooltip: {
 					trigger: 'axis'
@@ -426,7 +465,8 @@ new Vue({
 					}
 				],
 	            legend: {
-	                data:["", this.chartVariable]
+	            	top: 20,
+	                data:[this.chartVariable]
 	            },
 	            xAxis: {
 	                data: xAxisData
@@ -453,7 +493,7 @@ new Vue({
 			//chart
 	        var option = {
 	            title: {
-	                text: this.chartVariable+"\n"
+	                text: this.chartVariable
 	            },
 				tooltip: {
 					trigger: 'axis'
@@ -475,7 +515,8 @@ new Vue({
 					}
 				],
 	            legend: {
-	                data:["", this.chartVariable]
+	            	top: 20,
+	                data:[this.chartVariable]
 	            },
 	            xAxis: {
 	                data: xAxisData
@@ -509,7 +550,7 @@ new Vue({
 			//chart
 	        var option = {
 	            title: {
-	                text: this.chartVariable+"\n"
+	                text: this.chartVariable
 	            },
 				toolbox: {
 					feature: {
@@ -565,7 +606,7 @@ new Vue({
 			//chart
 	        var option = {
 	            title: {
-	                text: this.xVar + " by " + this.yVar +"\n"
+	                text: this.xVar + " by " + this.yVar
 	            },
 				toolbox: {
 					feature: {

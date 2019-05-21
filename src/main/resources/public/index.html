@@ -73,7 +73,7 @@
 						<el-button class="setting" type="text" @click="mapFormVisible = true"><i class="el-icon-s-tools"></i></el-button>
 						<el-popover class="legend" placement="bottom-end" trigger="hover">
 							<el-button slot="reference"  type="text">Legend</el-button>
-							<el-table slot stripe :data="legendColorData" size="mini">
+							<el-table slot stripe :data="legendColorData" size="mini" max-height="245px">
 								<el-table-column label="Color">
 										<template slot-scope="scope">
 											<el-tag :color="scope.row.color">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</el-tag>
@@ -97,7 +97,11 @@
 						<el-tabs type="border-card">
 						  <el-tab-pane>
 					    	<span slot="label"><i class="fas fa-table"></i> Data Table</span>
-							<el-table stripe :data="tableData" height="calc(100vh - 185px)" size="mini">
+							<el-table stripe :data="tableData" height="calc(100vh - 185px)" size="mini" ref="table" 
+									highlight-current-row 
+									@current-change="handleCurrentChange"
+									@cell-mouse-enter="handleCellMouseEnter"
+									@cell-mouse-leave="handleCellMouseLeave">
 						      <el-table-column sortable width="150" prop="name" label="name" fixed></el-table-column>
 						      <el-table-column sortable width="150" prop="geo_id2" label="geo_id2"></el-table-column>
 									<el-table-column sortable width="150" v-for="item in tableColumnMap" :prop="item" :label="item"></el-table-column>
